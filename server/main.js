@@ -22,6 +22,6 @@ IO.on('connection', function(socket){
 	});
 });
 
-HTTP.listen(3000, function(){
+HTTP.listen(process.env.PORT || 3000, function(){
 	console.log('listening on *:3000');
 });

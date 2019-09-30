@@ -25,26 +25,28 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 
 var spritesheet;
 const asset_structure = {};
+const game_state = {
+	handler_playing: false,
+	slot_playing: false
+}
 
 
 window.onload = function() {
 	
-	//Add the canvas that Pixi automatically created for you to the HTML document
 	document.body.appendChild(app.view);
 	
 	PIXI.Loader.shared
 		.add("assets/slot_holder_empty.png")
 		.add("assets/spritesheet.json")
 		.load(setup)
-		
-	socket.emit("message", "123456");
 	
+	//events
 	socket.on("confirm_play", confirm_play);
 }
 
 function confirm_play(message){
 	console.log(message);
-	//animate handler
+	game_state.handler_playing = true
 }
 
 function setup(){
@@ -66,13 +68,16 @@ function setup(){
 	handler.y = slot_holder.y;
 	handler.scale.x = 3;
 	handler.scale.y = 3;
+	handler.original_height = handler.height;
 	
 	asset_structure.handler = handler;
 	
 	handler.interactive = true;
 	handler.buttonMode = true;
 	handler.addListener('pointerdown', ()=>{
-		socket.emit("user_plays", true);
+		if (!game_state.slot_playing){
+			socket.emit("user_plays", true);
+		}
 	});
 	
 	for (let i=0; i < 6; i++)
@@ -93,6 +98,8 @@ function setup(){
 	app.stage.addChild(handler);
 	
 	app.ticker.add(delta => update(delta));
+	
+	socket.emit("ends_setup");
 }
 
 
@@ -100,4 +107,13 @@ function update(delta){
 	/*for (let i= 0; i < items.length;i++){
 		items[i].y++;
 	}*/
+	
+	if (game_state.handler_playing){
+		asset_structure.handler.height-=5;
+		if (asset_structure.handler.height <= 10){
+			asset_structure.handler.height = asset_structure.handler.original_height;
+			game_state.handler_playing = false;
+		}
+		
+	}
 }

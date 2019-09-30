@@ -17,8 +17,17 @@ IO.on('connection', function(socket){
 		console.log("user disconnected");
 	});
 	
-	socket.on('message', function(message){
-		console.log(message);
+	socket.on('user_plays', function(message){
+		
+		
+		
+		socket.emit("confirm_play", { 
+			play: {
+				column_1 : "1,2,3,1,2,3,1,2,3",
+				column_2 : "2,2,3,1,2,1,1,3",
+				column_2 : "2,1,3,1,2,1,1,3,1,1,3,1"
+			}
+		});
 	});
 });
 

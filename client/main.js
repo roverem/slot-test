@@ -1,4 +1,4 @@
-var app
+
 var socket = io();
 
 window.onload = function() {
@@ -10,16 +10,17 @@ window.onload = function() {
 	PIXI.utils.sayHello(type)
 	//Create a Pixi Application
 
-	app = new PIXI.Application({ 
-		width: 256,         // default: 800
-		height: 256,        // default: 600
-		antialias: true,    // default: false
-		transparent: false, // default: false
-		resolution: 1       // default: 1
+	const app = new PIXI.Application({ 
+		width: 256,         
+		height: 256,        
+		antialias: true,    
+		transparent: false, 
+		resolution: 1       
+		backgroundColor: 0x061639;
 	  }
 	);
 	
-	app.renderer.backgroundColor = 0x061639;
+	app.renderer.
 	app.renderer.autoDensity = true;
 	app.renderer.resize(512, 512);
 	
@@ -33,7 +34,7 @@ window.onload = function() {
 	
 	PIXI.Loader.shared
 		.add("assets/slot_holder_empty.png")
-		.add("assets/Food.png")
+		.add("assets/spritesheet.json")
 		.load(setup)
 		
 	socket.emit("message", "123456");
@@ -43,7 +44,9 @@ var slot_holder;
 var items = [];
 
 function setup(){
-	slot_holder = new PIXI.Sprite(PIXI.loader.resources["assets/slot_holder_empty.png"].texture)
+	
+	
+	slot_holder = new PIXI.Sprite(PIXI.Loader.shared.resources["assets/slot_holder_empty.png"].texture)
 	slot_holder.scale.x = 2;
 	slot_holder.scale.y = 2;
 	
@@ -55,19 +58,19 @@ function setup(){
 	
 	for (let i=0; i < 6; i++)
 	{
-		let food_texture = PIXI.loader.resources["assets/Food.png"].texture;
-		let rectangle = new PIXI.Rectangle(i * 16, i * 16, 16, 16);
-		food_texture.frame = rectangle;
-		let item = new PIXI.Sprite.from(food_texture)
-		item.x = 84;
+		let food_spritesheet = PIXI.Loader.shared.resources["assets/spritesheet.json"].spritesheet;
+		let item = new PIXI.Sprite(food_spritesheet["Food-" + i + ".png"])
+		/*item.x = 84;
 		item.y = i * -16 * 6
 		item.scale.x = 6;
-		item.scale.y = 6;
+		item.scale.y = 6;*/
 		items.push(item);
 		app.stage.addChild(item);
+		
+		console.log(item);
 	}
 	
-	app.stage.addChild(slot_holder);
+	//app.stage.addChild(slot_holder);
 	
 	app.ticker.add(delta => update(delta));
 }
@@ -78,17 +81,5 @@ function update(delta){
 		items[i].y++;
 	}
 	
-	if (!once){
-		let food_texture = PIXI.utils.TextureCache["assets/Food.png"]
-		let rectangle = new PIXI.Rectangle(0, 0, 16, 16);
-		food_texture.frame = rectangle;
-		let item = new PIXI.Sprite(food_texture)
-		item.x = 84;
-		item.y = 200
-		item.scale.x = 6;
-		item.scale.y = 6;
-		//items.push(item);
-		app.stage.addChild(item);
-		once = true;
-	}
+	app.renderer.render(
 }

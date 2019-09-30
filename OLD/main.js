@@ -18,19 +18,18 @@ window.onload = function() {
 	);
 	
 	app.renderer.backgroundColor = 0x061639;
-	app.renderer.autoResize = true;
+	app.renderer.autoDensity = true;
 	app.renderer.resize(512, 512);
 	
 	app.renderer.view.style.position = "absolute";
 	app.renderer.view.style.display = "block";
-	app.renderer.autoResize = true;
 	app.renderer.resize(window.innerWidth, window.innerHeight);
 
 	//Add the canvas that Pixi automatically created for you to the HTML document
 	document.body.appendChild(app.view);
 	
 	
-	PIXI.loader
+	PIXI.Loader.shared
 		.add("assets/slot_holder_empty.png")
 		.add("assets/Food.png")
 		.load(setup)
@@ -46,7 +45,6 @@ function setup(){
 	slot_holder.scale.x = 2;
 	slot_holder.scale.y = 2;
 	
-	let base_food_texture = PIXI.BaseTexture("assets/Food.png");
 	
 	/*food = new PIXI.Sprite(PIXI.loader.resources["assets/Food.png"].texture);
 	food.y = -400
@@ -55,7 +53,7 @@ function setup(){
 	
 	for (let i=0; i < 6; i++)
 	{
-		let food_texture = new PIXI.Texture(base_food_texture);
+		let food_texture = PIXI.loader.resources["assets/Food.png"].texture;
 		let rectangle = new PIXI.Rectangle(i * 16, i * 16, 16, 16);
 		food_texture.frame = rectangle;
 		let item = new PIXI.Sprite.from(food_texture)

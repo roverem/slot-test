@@ -67,10 +67,14 @@ function confirm_play(message){
 	
 	game_state.column_result = message.play;
 	
-	
+	game_state.play_result = message.result;
+	console.log(game_state.play_result);
 }
 
 function reset_game_state(){
+	
+	
+	
 	game_state.handler_playing = false;
 	game_state.slot_playing = false;
 }

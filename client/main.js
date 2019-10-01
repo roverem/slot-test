@@ -58,10 +58,21 @@ function save_config(config){
 
 function confirm_play(message){
 	console.log(message);
+	
 	game_state.handler_playing = true
 	game_state.slot_playing = true
+	for (let i= 0; i < asset_structure.columns.length;i++){
+		asset_structure.columns[i].is_spinning = true;
+	}
 	
 	game_state.column_result = message.play;
+	
+	
+}
+
+function reset_game_state(){
+	game_state.handler_playing = false;
+	game_state.slot_playing = false;
 }
 
 function setup(){
@@ -128,8 +139,6 @@ function setup(){
 		}
 	});
 	
-	
-	
 	app.stage.addChild(slot_holder);
 	app.stage.addChild(handler);
 	
@@ -150,6 +159,8 @@ function build_slots()
 	{	
 		let column_data = game_state.slot_config[ Object.keys(game_state.slot_config)[column] ];
 		asset_structure.columns.push( new PIXI.Container() );
+		asset_structure.columns[column].is_spinning = false;
+		asset_structure.columns[column].id = "column_" + (column+1).toString();
 		
 		for (let i=0; i < column_data.length; i++)
 		{
@@ -163,6 +174,7 @@ function build_slots()
 			item.original_y = item.y;
 			
 			asset_structure.columns[column].addChild(item);
+			
 		}
 		
 		app.stage.addChildAt(asset_structure.columns[column],0);
@@ -185,20 +197,46 @@ function find_upmost_children(column)
 	return upmost;
 }
 
+function check_all_columns_stopped(){
+	let all_stopped = true;
+	for (let i= 0; i < asset_structure.columns.length;i++){
+		let column = asset_structure.columns[i];
+		if (column.is_spinning){
+			all_stopped = false;
+		}
+	}
+	
+	if (all_stopped){
+		reset_game_state();
+	}
+}
+
 
 function update(delta){
 	
 	if (game_state.slot_playing){
 		for (let i= 0; i < asset_structure.columns.length;i++){
-			//asset_structure.columns[i].y++;
+			
 			let column = asset_structure.columns[i];
 			
 			for (let c=0; c < column.children.length; c++){
+				if (!column.is_spinning)
+					continue;
+				
 				let child = column.getChildAt(c);
+				
 				child.y+=5;
 				
 				if (child.y > 120){
 					child.visible = true;
+					if (child.y > 200 && game_state.column_result[column.id] == child.id){
+						
+						column.is_spinning = false;
+						
+						check_all_columns_stopped();
+						
+						continue;
+					}
 				}
 				
 				if (child.y > 250){

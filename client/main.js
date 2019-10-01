@@ -68,7 +68,11 @@ function confirm_play(message){
 	game_state.column_result = message.play;
 	
 	game_state.play_result = message.result;
-	console.log(game_state.play_result);
+	
+	
+	if (game_state.play_result == "wins"){
+		//ANIMAR ESQUELETO. RECIBE HIT.
+	}
 }
 
 function reset_game_state(){

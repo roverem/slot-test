@@ -17,15 +17,21 @@ IO.on('connection', function(socket){
 		console.log("user disconnected");
 	});
 	
+	socket.on('user_starts', function(){
+		socket.emit("slot_config", {
+			column_1 : [0,1,2,3,4,5,6],
+			column_2 : [0,1,5,6,2,3,4],
+			column_3 : [6,1,5,3,2,0,4]
+		});
+	});
+	
 	socket.on('user_plays', function(message){
-		
-		
 		
 		socket.emit("confirm_play", { 
 			play: {
-				column_1 : "1,2,3,1,2,3,1,2,3",
-				column_2 : "2,2,3,1,2,1,1,3",
-				column_2 : "2,1,3,1,2,1,1,3,1,1,3,1"
+				column_1 : "id_slot_" + Math.floor(Math.random() * 10),
+				column_2 : "id_slot_" + Math.floor(Math.random() * 10),
+				column_3 : "id_slot_" + Math.floor(Math.random() * 10)
 			}
 		});
 	});

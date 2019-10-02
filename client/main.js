@@ -72,6 +72,7 @@ function confirm_play(message){
 	
 	if (game_state.play_result == "wins"){
 		//ANIMAR ESQUELETO. RECIBE HIT.
+		asset_structure.character.play();
 	}
 }
 
@@ -107,6 +108,8 @@ function setup(){
 	character.y = 420;
 	app.stage.addChild(character);
 	
+	asset_structure.character = character;
+	
 	//ENEMY
 	
 	enemy_sprite = new PIXI.AnimatedSprite(enemy_spritesheet.animations["skeleton_tile"]);
@@ -117,6 +120,8 @@ function setup(){
 	enemy_sprite.scale.y = 6;
 	enemy_sprite.play();
 	app.stage.addChild(enemy_sprite);
+	
+	asset_structure.enemy = enemy_sprite;
 	
 	//SLOTS HOLDER
 	

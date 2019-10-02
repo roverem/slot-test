@@ -12,9 +12,9 @@ const columns = {
 	column_2 : [0,1,5,6,2,3,4],
 	column_3 : [6,1,5,3,2,0,4]*/
 	
-	column_1 : [0,1,2,3],
-	column_2 : [3,2,1,0],
-	column_3 : [1,3,2,0]
+	column_1 : [0,1,2,3,4],
+	column_2 : [3,2,1,0,4],
+	column_3 : [1,2,0,4,3]
 }
 
 APP.use('/', express.static("../client/"));

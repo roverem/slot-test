@@ -14,13 +14,9 @@ export class Game{
 			slot_playing: false,
 			slot_config: null
 		}
-		
-		console.log("CONSTRUCTOR");
 	}
 	
 	setup(){
-		
-		console.log("SETUP");
 		
 		document.body.appendChild(this.app.view);
 		
@@ -36,7 +32,6 @@ export class Game{
 	}
 	
 	setup_assets(){
-		console.log("SETUP_ASSETS");
 		
 		SOCKET.emit("user_starts")
 		

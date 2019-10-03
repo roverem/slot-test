@@ -27,10 +27,7 @@ export class Game{
 		document.body.appendChild(this.app.view);
 		
 		PIXI.Loader.shared
-			.add("assets/slot_holder_empty.png")
 			.add("assets/spritesheet.json")
-			.add("assets/character.json")
-			.add("assets/enemy.json")
 			.load(this.setup_assets.bind(this))
 			
 		
@@ -39,8 +36,6 @@ export class Game{
 		SOCKET.on('sending_reels', this.receive_reels.bind(this) );
 		SOCKET.on('sending_paylines', this.receive_paylines.bind(this) );
 		SOCKET.on('sending_paytable', this.receive_paytable.bind(this) );
-		
-		//SOCKET.on("slot_config", this.save_config.bind(this));
 		
 		SOCKET.on("confirm_play", this.confirm_play.bind(this));
 	}
@@ -58,76 +53,20 @@ export class Game{
 		this.assets.board.x = 200;
 		this.assets.board.y = 100;
 		
+		let mask = new PIXI.Graphics()
+			.beginFill(0xFF0000)
+			.drawRect(this.assets.board.x, board_rect.height, board_rect.width, board_rect.height)
+			.endFill();
+		this.addToStage(mask);
+		this.assets.board.mask = mask;
+		
 		this.addToStage(this.assets.board);
 		
-		
+		//REEL ITEM ASSETS
 		this.spritesheet = PIXI.Loader.shared.resources["assets/spritesheet.json"].spritesheet;
-		//char_spritesheet = PIXI.Loader.shared.resources["assets/character.json"].spritesheet;
-		this.enemy_spritesheet = PIXI.Loader.shared.resources["assets/enemy.json"].spritesheet;
 		
-		//PLAYER AVATAR.
 		
-		/*let character_frames = ["tile003.png", "tile004.png","tile005.png"];
-		let char_texture_array = [];
-		for (let i=0; i < character_frames.length; i++){
-			char_texture_array.push( PIXI.Texture.from(character_frames[i]) );
-		}
-		let character = new PIXI.AnimatedSprite(char_texture_array)
-		character.animationSpeed = 0.1;
-		//character.play();
-		character.scale.x = -2;
-		character.scale.y = 2;
-		character.x = 350;
-		character.y = 420;
-		//this.addToStage(character);
-		
-		this.assets.character = character;
-		
-		//ENEMY
-		
-		let enemy_sprite = new PIXI.AnimatedSprite(this.enemy_spritesheet.animations["skeleton_tile"]);
-		enemy_sprite.x = 550;
-		enemy_sprite.y = 410;
-		enemy_sprite.animationSpeed = 0.1;
-		enemy_sprite.scale.x = -6;
-		enemy_sprite.scale.y = 6;
-		enemy_sprite.play();
-		this.addToStage(enemy_sprite);
-		
-		this.assets.enemy = enemy_sprite;
-		
-		//SLOTS HOLDER
-		
-		let slot_holder = new PIXI.Sprite(this.spritesheet.textures["slot_holder_empty.png"])
-		slot_holder.scale.x = 3;
-		slot_holder.scale.y = 3;
-		slot_holder.y = 200;
-		slot_holder.x = slot_holder.width;
-		
-		this.assets.slot_holder = slot_holder;
-		
-		//HANDLER - PALANCA
-		
-		let handler = new PIXI.Sprite(this.spritesheet.textures["handle.png"]);
-		handler.x = slot_holder.x;
-		handler.y = slot_holder.y;
-		handler.scale.x = 3;
-		handler.scale.y = 3;
-		handler.original_height = handler.height;
-		
-		this.assets.handler = handler;
-		
-		handler.interactive = true;
-		handler.buttonMode = true;
-		handler.addListener('pointerdown', ()=>{
-			if (!this.state.slot_playing){
-				SOCKET.emit("user_plays");
-			}
-		});
-		
-		this.addToStage(slot_holder);
-		this.addToStage(handler);*/
-		
+		//SPIN BUTTON
 		let spin_button = new PIXI.Container();
 		spin_button.x = 600;
 		spin_button.y = 800;
@@ -136,6 +75,9 @@ export class Game{
 		spin_button.buttonMode = true;
 		spin_button.addListener('pointerdown', ()=>{
 			console.log("SPIN!");
+			/*if (!this.state.slot_playing){
+				SOCKET.emit("user_plays");
+			}*/
 		});
 		
 		let spin_button_frame = new PIXI.Graphics()
@@ -143,7 +85,8 @@ export class Game{
 			.drawRect(0, 0, 200, 100)
 			.endFill();
 		let spin_button_text = new PIXI.Text("SPIN", {fontFamily: 'Arial', fontSize: 34, fill: 0xffffff, align: 'center'});
-		
+		spin_button_text.x = spin_button_frame.width / 2 - spin_button_text.width / 2;
+		spin_button_text.y = spin_button_frame.height / 2 - spin_button_text.height / 2;
 		spin_button.addChild(spin_button_frame);
 		spin_button.addChild(spin_button_text);
 		this.addToStage(spin_button);
@@ -201,15 +144,6 @@ export class Game{
 			reel.asset.y = 500;
 			this.assets.board.addChild(reel.asset);
 		}
-		
-		
-		let b = this.assets.board.getChildByName("board_rect");
-		let mask = new PIXI.Graphics()
-			.beginFill(0xFF0000)
-			.drawRect(this.assets.board.x, b.height, b.width, b.height)
-			.endFill();
-		this.addToStage(mask);
-		this.assets.board.mask = mask;
 		
 		this.app.ticker.add(delta => this.update(delta));
 	}

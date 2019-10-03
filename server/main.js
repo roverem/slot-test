@@ -51,14 +51,7 @@ IO.on('connection', function(socket){
 		console.log("user disconnected");
 	});
 	
-	socket.on('getReels', getReels );
-	socket.on('getPaylines', getPaylines );
-	socket.on('getPaytable', getPaytable );
-	
-	console.log( getReels() );
-	console.log( getPaylines() );
-	console.log( getPaytable() );
-	console.log( spin() );
+	socket.on('user_request_initial_data', ()=>{user_requested_data(socket)} );
 	
 	socket.on('user_starts', function(){
 		socket.emit("slot_config", columns);
@@ -66,6 +59,16 @@ IO.on('connection', function(socket){
 	
 	socket.on('user_plays', ()=> { oldSpin(socket)});
 });
+
+function user_requested_data(socket){
+	socket.emit('sending_reels', getReels() );
+	
+	socket.emit('sending_paylines', getPaylines() );
+	
+	socket.emit('sending_paytable', getPaytable() );
+	
+	/*console.log( spin() );*/
+}
 
 function oldSpin(socket){
 	let r1 = Math.floor(Math.random() * columns.column_1.length);

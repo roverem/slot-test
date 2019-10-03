@@ -14,6 +14,8 @@ export class Game{
 			slot_playing: false,
 			slot_config: null
 		}
+		
+		this.server_data = {};
 	}
 	
 	setup(){
@@ -26,9 +28,41 @@ export class Game{
 			.add("assets/character.json")
 			.add("assets/enemy.json")
 			.load(this.setup_assets.bind(this))
-			
-		SOCKET.on("slot_config", this.save_config.bind(this));
+		
+		SOCKET.emit("user_request_initial_data");
+		
+		SOCKET.on('sending_reels', this.receive_reels.bind(this) );
+		SOCKET.on('sending_paylines', this.receive_paylines.bind(this) );
+		SOCKET.on('sending_paytable', this.receive_paytable.bind(this) );
+		
+		//SOCKET.on("slot_config", this.save_config.bind(this));
+		
 		SOCKET.on("confirm_play", this.confirm_play.bind(this));
+	}
+	
+	receive_reels(data){
+		this.server_data.reels = data;
+		
+		this.check_all_data_received();
+	}
+	
+	receive_paylines(data){
+		this.server_data.paylines = data;
+		
+		this.check_all_data_received();
+	}
+	
+	receive_paytable(data){
+		this.server_data.paytable = data;
+		
+		this.check_all_data_received();
+	}
+	
+	check_all_data_received(){
+		if (this.server_data.paylines && this.server_data.reels && this.server_data.paytable){
+			//this.build_slots();
+			console.log("this.build_slots();");
+		}
 	}
 	
 	setup_assets(){

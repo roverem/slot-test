@@ -19,6 +19,7 @@ export class Game{
 		}
 		
 		this.server_data = {};
+		
 	}
 	
 	setup(){
@@ -66,7 +67,7 @@ export class Game{
 		
 		//PLAYER AVATAR.
 		
-		let character_frames = ["tile003.png", "tile004.png","tile005.png"];
+		/*let character_frames = ["tile003.png", "tile004.png","tile005.png"];
 		let char_texture_array = [];
 		for (let i=0; i < character_frames.length; i++){
 			char_texture_array.push( PIXI.Texture.from(character_frames[i]) );
@@ -124,8 +125,8 @@ export class Game{
 			}
 		});
 		
-		//this.addToStage(slot_holder);
-		//this.addToStage(handler);
+		this.addToStage(slot_holder);
+		this.addToStage(handler);*/
 		
 		this.state.assets_ready = true;
 		this.setup_game();
@@ -190,7 +191,6 @@ export class Game{
 		this.addToStage(mask);
 		this.assets.board.mask = mask;
 		
-		
 		this.app.ticker.add(delta => this.update(delta));
 	}
 	
@@ -201,6 +201,11 @@ export class Game{
 	
 	update(delta){
 		
+		TWEEN.update();
+		
+		for (let r=0; r < this.assets.reels.length; r++){
+			this.assets.reels[r].update(delta);
+		}
 	
 		if (this.state.slot_playing){
 			for (let i= 0; i < this.assets.columns.length;i++){

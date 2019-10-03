@@ -5,7 +5,7 @@ export class Reel{
 		this.item_spritesheet = item_spritesheet;
 		
 		this.asset = new PIXI.Container();
-		this.is_spinning = false;
+		this.is_spinning = true;
 		
 		this.items = [];
 		this.asset_config = {
@@ -15,7 +15,6 @@ export class Reel{
 			d: "Food-4.png",
 			e: "Food-5.png"
 		}
-		
 		
 		this.build_items();
 	}
@@ -31,11 +30,20 @@ export class Reel{
 			//item.visible = false;
 			item.original_y = item.y;
 			
+			const tween = new TWEEN.Tween(item)
+				.to({ y: 200 }, 3000) 
+				.easing(TWEEN.Easing.Quadratic.Out)
+				.start();
+			console.log(tween);
+			
 			this.asset.addChild(item);
 		}
-		
-		
 	}
 	
-	
+	update(delta){
+		
+		if (this.is_spinning){
+			//this.asset.y++;
+		}
+	}
 }

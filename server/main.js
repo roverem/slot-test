@@ -51,9 +51,11 @@ IO.on('connection', function(socket){
 		console.log("user disconnected");
 	});
 	
-	socket.on('user_request_initial_data', ()=>{user_requested_data(socket)} );
+	socket.on('user_request_initial_data', ()=> {
+		user_requested_data(socket)
+	});
 	
-	socket.on('user_starts', function(){
+	socket.on('user_starts', ()=>{
 		socket.emit("slot_config", columns);
 	});
 	

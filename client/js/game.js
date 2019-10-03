@@ -11,8 +11,8 @@ export class Game{
 		this.assets = {};
 		this.state = {
 			handler_playing: false,
-			slot_playing: false,
-			slot_config: null
+			slot_playing: false
+			//,slot_config: null
 		}
 		
 		this.server_data = {};
@@ -40,6 +40,11 @@ export class Game{
 		SOCKET.on("confirm_play", this.confirm_play.bind(this));
 	}
 	
+	/*save_config(config){
+		this.state.slot_config = config;
+		this.build_slots();
+	}*/
+	
 	receive_reels(data){
 		this.server_data.reels = data;
 		
@@ -60,9 +65,51 @@ export class Game{
 	
 	check_all_data_received(){
 		if (this.server_data.paylines && this.server_data.reels && this.server_data.paytable){
-			//this.build_slots();
-			console.log("this.build_slots();");
+			
+			this.build_slots();
 		}
+	}
+	
+	build_slots(){
+		console.log("Building slots", this.server_data )
+		//COLUMNS - ROLLS
+		
+		this.assets.reels = [];
+		
+		for (let i=0; i < this.server_data.reels.length; i++){
+			let reel = new Reel(this.server_data.reels[i], i + 1);
+			this.asset.reels.push(reel);
+			this.reel.asset.x = 150 + i * reel.asset.width + 100 * i;
+			this.addToStage(reel);
+		}
+		
+		/*this.assets.columns = [];
+		
+		//deberia usar for each.
+		for (let column=0; column < Object.keys(this.server_data.reels).length; column++)
+		{	
+			let column_data = this.state.slot_config[ Object.keys(this.state.slot_config)[column] ];
+			this.assets.columns.push( new PIXI.Container() );
+			this.assets.columns[column].is_spinning = false;
+			this.assets.columns[column].id = "column_" + (column+1).toString();
+			
+			for (let i=0; i < column_data.length; i++)
+			{
+				let item = new PIXI.Sprite(this.spritesheet.textures["Food-" + column_data[i] + ".png"])
+				item.scale.x = 6;
+				item.scale.y = 6;
+				item.x = 150 + column * item.width + 100 * column;
+				item.y = i * -20 * 6;
+				item.id = "id_slot_" + i;
+				item.visible = false;
+				item.original_y = item.y;
+				
+				this.assets.columns[column].addChild(item);
+				
+			}
+			
+			this.addToStage(this.assets.columns[column],0);
+		}*/
 	}
 	
 	setup_assets(){
@@ -190,11 +237,6 @@ export class Game{
 		}
 	}
 	
-	save_config(config){
-		this.state.slot_config = config;
-		this.build_slots();
-	}
-	
 	confirm_play(message){
 		console.log(message);
 		
@@ -220,38 +262,7 @@ export class Game{
 		this.state.slot_playing = false;
 	}
 	
-	build_slots(){
-		console.log("Building slots", Object.keys(this.state.slot_config) )
-		//COLUMNS - ROLLS
-		
-		this.assets.columns = [];
-		
-		//deberia usar for each.
-		for (let column=0; column < Object.keys(this.state.slot_config).length; column++)
-		{	
-			let column_data = this.state.slot_config[ Object.keys(this.state.slot_config)[column] ];
-			this.assets.columns.push( new PIXI.Container() );
-			this.assets.columns[column].is_spinning = false;
-			this.assets.columns[column].id = "column_" + (column+1).toString();
-			
-			for (let i=0; i < column_data.length; i++)
-			{
-				let item = new PIXI.Sprite(this.spritesheet.textures["Food-" + column_data[i] + ".png"])
-				item.scale.x = 6;
-				item.scale.y = 6;
-				item.x = 150 + column * item.width + 100 * column;
-				item.y = i * -20 * 6;
-				item.id = "id_slot_" + i;
-				item.visible = false;
-				item.original_y = item.y;
-				
-				this.assets.columns[column].addChild(item);
-				
-			}
-			
-			this.addToStage(this.assets.columns[column],0);
-		}
-	}
+	
 	
 	find_upmost_children(column)
 	{

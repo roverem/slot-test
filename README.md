@@ -1,6 +1,6 @@
-#TEST SPIELDEV
+# TEST SPIELDEV
 
-##INSTALACIÓN
+## INSTALACIÓN
 
 Descargar repo.
 

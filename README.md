@@ -6,7 +6,7 @@ Descargar repo.
 
 Tener instalado node.js
 
-Ubicarse en la carpeta /server
+Ubicarse en la carpeta **/server**
 
 Instalar modules de node con comando **npm install**
 

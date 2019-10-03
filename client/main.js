@@ -1,3 +1,5 @@
+import { Game } from "./js/game.js";
+
 var socket = io();
 
 const app = new PIXI.Application({ 
@@ -8,6 +10,8 @@ const app = new PIXI.Application({
 	resolution: 1,    
 	backgroundColor: 0x061639
 });
+
+const game = new Game(io, app);
 
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
@@ -47,8 +51,9 @@ window.onload = function() {
 		.load(setup)
 	
 	//events
-	socket.on("confirm_play", confirm_play);
 	socket.on("slot_config", save_config)
+	
+	socket.on("confirm_play", confirm_play);
 }
 
 function save_config(config){
@@ -112,7 +117,7 @@ function setup(){
 	
 	//ENEMY
 	
-	enemy_sprite = new PIXI.AnimatedSprite(enemy_spritesheet.animations["skeleton_tile"]);
+	let enemy_sprite = new PIXI.AnimatedSprite(enemy_spritesheet.animations["skeleton_tile"]);
 	enemy_sprite.x = 550;
 	enemy_sprite.y = 410;
 	enemy_sprite.animationSpeed = 0.1;

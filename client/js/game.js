@@ -128,6 +128,26 @@ export class Game{
 		this.addToStage(slot_holder);
 		this.addToStage(handler);*/
 		
+		let spin_button = new PIXI.Container();
+		spin_button.x = 600;
+		spin_button.y = 800;
+		
+		spin_button.interactive = true;
+		spin_button.buttonMode = true;
+		spin_button.addListener('pointerdown', ()=>{
+			console.log("SPIN!");
+		});
+		
+		let spin_button_frame = new PIXI.Graphics()
+			.beginFill(0xFF0000)
+			.drawRect(0, 0, 200, 100)
+			.endFill();
+		let spin_button_text = new PIXI.Text("SPIN", {fontFamily: 'Arial', fontSize: 34, fill: 0xffffff, align: 'center'});
+		
+		spin_button.addChild(spin_button_frame);
+		spin_button.addChild(spin_button_text);
+		this.addToStage(spin_button);
+		
 		this.state.assets_ready = true;
 		this.setup_game();
 	}
@@ -202,10 +222,6 @@ export class Game{
 	update(delta){
 		
 		TWEEN.update();
-		
-		for (let r=0; r < this.assets.reels.length; r++){
-			this.assets.reels[r].update(delta);
-		}
 	
 		if (this.state.slot_playing){
 			for (let i= 0; i < this.assets.columns.length;i++){

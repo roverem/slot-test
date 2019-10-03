@@ -26,24 +26,17 @@ export class Reel{
 			item.scale.x = 6;
 			item.scale.y = 6;
 			item.y = i * -20 * 6;
-			item.id = "id_slot_" + this.data[i];
-			//item.visible = false;
+			item.id = i.toString();
 			item.original_y = item.y;
-			
-			const tween = new TWEEN.Tween(item)
-				.to({ y: 200 }, 3000) 
-				.easing(TWEEN.Easing.Quadratic.Out)
-				.start();
-			console.log(tween);
 			
 			this.asset.addChild(item);
 		}
+		
+		const tween = new TWEEN.Tween(this.asset)
+			.to({ y: this.asset.y + 900 }, 3000) 
+			.easing(TWEEN.Easing.Quadratic.InOut)
+			//.onUpdate( (object)=>{ console.log(object.y) })
+			.start();
 	}
 	
-	update(delta){
-		
-		if (this.is_spinning){
-			//this.asset.y++;
-		}
-	}
 }

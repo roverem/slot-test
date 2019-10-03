@@ -69,7 +69,7 @@ function user_requested_data(socket){
 	
 	socket.emit('sending_paytable', getPaytable() );
 	
-	/*console.log( spin() );*/
+	console.log( spin() );
 }
 
 function oldSpin(socket){

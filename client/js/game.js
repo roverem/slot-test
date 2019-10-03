@@ -1,4 +1,5 @@
 import { SOCKET } from "../main.js";
+import { Reel } from "./reel.js";
 
 export class Game{
 	constructor(app){
@@ -11,8 +12,10 @@ export class Game{
 		this.assets = {};
 		this.state = {
 			handler_playing: false,
-			slot_playing: false
-			//,slot_config: null
+			slot_playing: false,
+		  //slot_config: null,
+			
+			server_data_ready : false
 		}
 		
 		this.server_data = {};
@@ -28,9 +31,10 @@ export class Game{
 			.add("assets/character.json")
 			.add("assets/enemy.json")
 			.load(this.setup_assets.bind(this))
+			
 		
 		SOCKET.emit("user_request_initial_data");
-		
+			
 		SOCKET.on('sending_reels', this.receive_reels.bind(this) );
 		SOCKET.on('sending_paylines', this.receive_paylines.bind(this) );
 		SOCKET.on('sending_paytable', this.receive_paytable.bind(this) );
@@ -40,81 +44,21 @@ export class Game{
 		SOCKET.on("confirm_play", this.confirm_play.bind(this));
 	}
 	
-	/*save_config(config){
-		this.state.slot_config = config;
-		this.build_slots();
-	}*/
-	
-	receive_reels(data){
-		this.server_data.reels = data;
-		
-		this.check_all_data_received();
-	}
-	
-	receive_paylines(data){
-		this.server_data.paylines = data;
-		
-		this.check_all_data_received();
-	}
-	
-	receive_paytable(data){
-		this.server_data.paytable = data;
-		
-		this.check_all_data_received();
-	}
-	
-	check_all_data_received(){
-		if (this.server_data.paylines && this.server_data.reels && this.server_data.paytable){
-			
-			this.build_slots();
-		}
-	}
-	
-	build_slots(){
-		console.log("Building slots", this.server_data )
-		//COLUMNS - ROLLS
-		
-		this.assets.reels = [];
-		
-		for (let i=0; i < this.server_data.reels.length; i++){
-			let reel = new Reel(this.server_data.reels[i], i + 1);
-			this.asset.reels.push(reel);
-			this.reel.asset.x = 150 + i * reel.asset.width + 100 * i;
-			this.addToStage(reel);
-		}
-		
-		/*this.assets.columns = [];
-		
-		//deberia usar for each.
-		for (let column=0; column < Object.keys(this.server_data.reels).length; column++)
-		{	
-			let column_data = this.state.slot_config[ Object.keys(this.state.slot_config)[column] ];
-			this.assets.columns.push( new PIXI.Container() );
-			this.assets.columns[column].is_spinning = false;
-			this.assets.columns[column].id = "column_" + (column+1).toString();
-			
-			for (let i=0; i < column_data.length; i++)
-			{
-				let item = new PIXI.Sprite(this.spritesheet.textures["Food-" + column_data[i] + ".png"])
-				item.scale.x = 6;
-				item.scale.y = 6;
-				item.x = 150 + column * item.width + 100 * column;
-				item.y = i * -20 * 6;
-				item.id = "id_slot_" + i;
-				item.visible = false;
-				item.original_y = item.y;
-				
-				this.assets.columns[column].addChild(item);
-				
-			}
-			
-			this.addToStage(this.assets.columns[column],0);
-		}*/
-	}
-	
 	setup_assets(){
 		
-		SOCKET.emit("user_starts")
+		//BOARD
+		this.assets.board = new PIXI.Container();
+		let board_rect = new PIXI.Graphics().
+			beginFill(0xFF0000)
+			.drawRect(0, 250, 600, 360)
+			.endFill();
+		board_rect.name = "board_rect";
+		this.assets.board.addChild(board_rect);
+		this.assets.board.x = 200;
+		this.assets.board.y = 100;
+		
+		this.addToStage(this.assets.board);
+		
 		
 		this.spritesheet = PIXI.Loader.shared.resources["assets/spritesheet.json"].spritesheet;
 		//char_spritesheet = PIXI.Loader.shared.resources["assets/character.json"].spritesheet;
@@ -134,7 +78,7 @@ export class Game{
 		character.scale.y = 2;
 		character.x = 350;
 		character.y = 420;
-		this.addToStage(character);
+		//this.addToStage(character);
 		
 		this.assets.character = character;
 		
@@ -180,19 +124,83 @@ export class Game{
 			}
 		});
 		
-		this.addToStage(slot_holder);
-		this.addToStage(handler);
+		//this.addToStage(slot_holder);
+		//this.addToStage(handler);
+		
+		this.state.assets_ready = true;
+		this.setup_game();
+	}
+	
+	receive_reels(data){
+		this.server_data.reels = data;
+		
+		this.check_all_data_received();
+	}
+	
+	receive_paylines(data){
+		this.server_data.paylines = data;
+		
+		this.check_all_data_received();
+	}
+	
+	receive_paytable(data){
+		this.server_data.paytable = data;
+		
+		this.check_all_data_received();
+	}
+	
+	check_all_data_received(){
+		if (this.server_data.paylines && this.server_data.reels && this.server_data.paytable){
+			
+			this.state.server_data_ready = true;
+			this.setup_game();
+		}
+	}
+	
+	setup_game(){
+		if (!this.state.server_data_ready)
+			return;
+		
+		if (!this.state.assets_ready)
+			return;
+		
+		this.build_slots();
+	}
+	
+	build_slots(){
+		console.log("Building slots", this.server_data )
+		//COLUMNS - ROLLS
+		
+		this.assets.reels = [];
+		
+		for (let i=0; i < this.server_data.reels.length; i++){
+			let reel = new Reel(this.server_data.reels[i], i + 1, this.spritesheet);
+			this.assets.reels.push(reel);
+			reel.asset.x = 50 + i * reel.asset.width + 100 * i;
+			reel.asset.y = 500;
+			this.assets.board.addChild(reel.asset);
+		}
+		
+		
+		let b = this.assets.board.getChildByName("board_rect");
+		let mask = new PIXI.Graphics()
+			.beginFill(0xFF0000)
+			.drawRect(this.assets.board.x, b.height, b.width, b.height)
+			.endFill();
+		this.addToStage(mask);
+		this.assets.board.mask = mask;
+		
 		
 		this.app.ticker.add(delta => this.update(delta));
-		
-		SOCKET.emit("ends_setup");
 	}
+	
 	
 	addToStage(child){
 		this.app.stage.addChild(child);
 	}
 	
 	update(delta){
+		
 	
 		if (this.state.slot_playing){
 			for (let i= 0; i < this.assets.columns.length;i++){

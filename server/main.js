@@ -112,16 +112,19 @@ function oldSpin(socket){
 
 function getReels()
 {
+	console.log(REELS);
 	return REELS;
 }
 
 function getPaylines()
 {
+	console.log(PAYLINES);
 	return PAYLINES;
 }
 
 function getPaytable ()
 {
+	console.log(PAYTABLE);
 	return PAYTABLE;
 }
 

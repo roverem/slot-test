@@ -8,8 +8,6 @@ export class Reel{
 		this.is_spinning = false;
 		
 		this.items = [];
-		build_items();
-		
 		this.asset_config = {
 			a: "Food-1.png",
 			b: "Food-2.png",
@@ -17,6 +15,9 @@ export class Reel{
 			d: "Food-4.png",
 			e: "Food-5.png"
 		}
+		
+		
+		this.build_items();
 	}
 	
 	build_items(){
@@ -27,11 +28,13 @@ export class Reel{
 			item.scale.y = 6;
 			item.y = i * -20 * 6;
 			item.id = "id_slot_" + this.data[i];
-			item.visible = false;
+			//item.visible = false;
 			item.original_y = item.y;
 			
 			this.asset.addChild(item);
 		}
+		
+		
 	}
 	
 	

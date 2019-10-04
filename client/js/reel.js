@@ -76,7 +76,6 @@ export class Reel{
 			if (this.stopping_point != null && 
 				this.items[this.stopping_point].y >= this.TOP_POINT )
 			{
-				console.log("stopping for ", i)
 				this.is_spinning = false;
 				return;
 			}

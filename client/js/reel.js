@@ -6,11 +6,24 @@ export class Reel{
 		
 		this.asset = new PIXI.Container();
 		
-		this.velocity = 5;
+		this.velocity = 12;
 		
 		this.is_spinning = false;
 		
-		this.TOP_POINT = -250;
+		this.COLLISION_TOP = -250;
+		this.COLLISION_BOTTOM = -150;
+		
+		this.SPACING = 20;
+		
+		this.spin_time = 0;
+		this.MIN_SPIN_TIME = 3 * 60;
+		
+		let hit_area = new PIXI.Graphics()
+			.beginFill(0x006600)
+			//.lineStyle(4, 0xFF3300, 1)
+			.drawRect(0, this.COLLISION_TOP, 100, (this.COLLISION_BOTTOM - this.COLLISION_TOP) )
+			.endFill();
+		this.asset.addChild(hit_area);
 		
 		this.stopping_point = null;
 		
@@ -28,7 +41,6 @@ export class Reel{
 	}
 	
 	set_stop(point){
-		console.log("setting stop:", point);
 		this.stopping_point = point;
 	}
 	
@@ -38,7 +50,7 @@ export class Reel{
 			let item = new PIXI.Sprite( this.item_spritesheet.textures[asset_name] );
 			item.scale.x = 6;
 			item.scale.y = 6;
-			item.y = this.TOP_POINT + i * 20 * 6;
+			item.y = this.COLLISION_TOP + i * this.SPACING * 6;
 			item.id = i.toString();
 			item.original_y = item.y;
 			this.items.push(item);
@@ -53,11 +65,13 @@ export class Reel{
 		this.topmost_item = 0;
 		for (let i=this.items.length-1; i >= 0; i--){
 			if (this.items[i].y > 80){
-				this.items[i].y = this.items[this.topmost_item].y - this.items[i].height * 1.5;
+				this.items[i].y = this.items[this.topmost_item].y - (this.items[i].height + this.SPACING);
 				this.topmost_item = i;
 				
 			}
 		}
+		
+		
 	}
 	
 	setup_tween() {
@@ -69,25 +83,47 @@ export class Reel{
 	}
 	
 	update(delta){
+		
 		if (!this.is_spinning) return;
+		
+		this.spin_time += delta;
+		
 		//for (let i=0; i < this.items.length; i++){
 		for (let i=this.items.length-1; i >= 0; i--){
 			
-			if (this.stopping_point != null && 
-				this.items[this.stopping_point].y >= this.TOP_POINT )
+			
+			
+			if (this.stopping_point != null && this.spin_time >= this.MIN_SPIN_TIME &&
+				//this.items[this.stopping_point].y >= this.COLLISION_TOP )
+				this.is_between_collision_spot(this.items[this.stopping_point]))
 			{
+				
+				//console.log( this.is_between_collision_spot(this.items[this.stopping_point]) );
 				this.is_spinning = false;
+				this.spin_time = 0;
 				return;
 			}
 			
 			this.items[i].y += this.velocity * delta;
 			
 			if (this.items[i].y > 80){
-				this.items[i].y = this.items[this.topmost_item].y - this.items[i].height * 1.5;
+				this.items[i].y = this.items[this.topmost_item].y - (this.items[i].height + this.SPACING);
 				this.topmost_item = i;
 			}
 		}
 	}
 	
-	
+	is_between_collision_spot(item)
+	{
+		let is_below_top=false;
+		let is_above_bottom=false;
+		
+		if (item.y > this.COLLISION_TOP)
+			is_below_top = true;
+		
+		if (item.y < this.COLLISION_BOTTOM)
+			is_above_bottom = true;
+		
+		return is_above_bottom && is_below_top;
+	}
 }

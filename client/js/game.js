@@ -37,7 +37,8 @@ export class Game{
 		SOCKET.on('sending_paylines', this.receive_paylines.bind(this) );
 		SOCKET.on('sending_paytable', this.receive_paytable.bind(this) );
 		
-		SOCKET.on("confirm_play", this.confirm_play.bind(this));
+		//SOCKET.on("confirm_play", this.confirm_play.bind(this));
+		SOCKET.on( "spin", this.spin.bind(this) );
 	}
 	
 	setup_assets(){
@@ -69,7 +70,7 @@ export class Game{
 		//SPIN BUTTON
 		let spin_button = new PIXI.Container();
 		spin_button.x = 600;
-		spin_button.y = 800;
+		spin_button.y = 200;
 		
 		spin_button.interactive = true;
 		spin_button.buttonMode = true;
@@ -78,6 +79,7 @@ export class Game{
 			/*if (!this.state.slot_playing){
 				SOCKET.emit("user_plays");
 			}*/
+			SOCKET.emit("request_spin");
 		});
 		
 		let spin_button_frame = new PIXI.Graphics()
@@ -156,6 +158,10 @@ export class Game{
 	update(delta){
 		
 		TWEEN.update();
+		
+		for (let r=0; r < this.assets.reels.length; r++){
+			this.assets.reels[r].update(delta);
+		}
 	
 		if (this.state.slot_playing){
 			for (let i= 0; i < this.assets.columns.length;i++){
@@ -197,6 +203,14 @@ export class Game{
 				this.state.handler_playing = false;
 			}
 			
+		}
+	}
+	
+	spin(data){
+		console.log(data);
+		for ( let i = 0; i < this.assets.reels.length; i++ ){
+			this.assets.reels[i].is_spinning = true;
+			this.assets.reels[i].set_stop(data.stopPoints[i]);
 		}
 	}
 	

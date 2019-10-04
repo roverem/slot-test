@@ -55,11 +55,15 @@ IO.on('connection', function(socket){
 		user_requested_data(socket)
 	});
 	
-	socket.on('user_starts', ()=>{
+	socket.on('request_spin', ()=>{
+		socket.emit( 'spin', spin() );
+	});
+	
+	/*socket.on('user_starts', ()=>{
 		socket.emit("slot_config", columns);
 	});
 	
-	socket.on('user_plays', ()=> { oldSpin(socket)});
+	socket.on('user_plays', ()=> { oldSpin(socket)});*/
 });
 
 function user_requested_data(socket){

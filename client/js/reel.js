@@ -6,12 +6,14 @@ export class Reel{
 		
 		this.asset = new PIXI.Container();
 		
-		this.velocity = 12;
+		this.velocity = 18;
 		
 		this.is_spinning = false;
+		this.is_ending = false;
 		
 		this.COLLISION_TOP = -250;
 		this.COLLISION_BOTTOM = -150;
+		this.BOARD_BOTTOM = 80;
 		
 		this.SPACING = 20;
 		
@@ -20,7 +22,6 @@ export class Reel{
 		
 		let hit_area = new PIXI.Graphics()
 			.beginFill(0x006600)
-			//.lineStyle(4, 0xFF3300, 1)
 			.drawRect(0, this.COLLISION_TOP, 100, (this.COLLISION_BOTTOM - this.COLLISION_TOP) )
 			.endFill();
 		this.asset.addChild(hit_area);
@@ -64,11 +65,7 @@ export class Reel{
 		
 		this.topmost_item = 0;
 		for (let i=this.items.length-1; i >= 0; i--){
-			if (this.items[i].y > 80){
-				this.items[i].y = this.items[this.topmost_item].y - (this.items[i].height + this.SPACING);
-				this.topmost_item = i;
-				
-			}
+			this.check_and_reposition(i);
 		}
 		
 		
@@ -89,27 +86,63 @@ export class Reel{
 		this.spin_time += delta;
 		
 		//for (let i=0; i < this.items.length; i++){
+		if (!this.is_ending){
+			this.spinning(delta)
+		}else{
+			this.ending(delta);
+		}
+	}
+	
+	spinning(delta)
+	{
 		for (let i=this.items.length-1; i >= 0; i--){
 			
-			
-			
-			if (this.stopping_point != null && this.spin_time >= this.MIN_SPIN_TIME &&
-				//this.items[this.stopping_point].y >= this.COLLISION_TOP )
+			if (this.stopping_point != null && 
+				this.spin_time >= this.MIN_SPIN_TIME &&
 				this.is_between_collision_spot(this.items[this.stopping_point]))
 			{
-				
-				//console.log( this.is_between_collision_spot(this.items[this.stopping_point]) );
-				this.is_spinning = false;
+				this.is_ending = true
 				this.spin_time = 0;
 				return;
 			}
 			
 			this.items[i].y += this.velocity * delta;
-			
-			if (this.items[i].y > 80){
-				this.items[i].y = this.items[this.topmost_item].y - (this.items[i].height + this.SPACING);
-				this.topmost_item = i;
+			this.check_and_reposition(i)
+		}
+	}
+	
+	ending(delta)
+	{
+		console.log( );
+		if ( this.items[this.stopping_point].y < this.COLLISION_TOP ){
+			for (let i=0; i < this.items.length; i++){
+				
+				if ( Math.abs( this.items[this.stopping_point].y - this.COLLISION_TOP) < 1 ){
+					this.items[i].y += Math.abs( this.items[this.stopping_point].y - this.COLLISION_TOP );
+				}else{
+					this.items[i].y++;
+				}
 			}
+		} else if (this.items[this.stopping_point].y > this.COLLISION_TOP){
+			for (let i=0; i < this.items.length; i++){
+				if ( Math.abs( this.items[this.stopping_point].y - this.COLLISION_TOP) < 1 ){
+					this.items[i].y -= Math.abs( this.items[this.stopping_point].y - this.COLLISION_TOP);
+				}else{
+					this.items[i].y--;
+				}
+			}
+		} else {
+			this.is_spinning = false;
+			this.is_ending = false;
+		}
+		
+		
+	}
+	
+	check_and_reposition(i){
+		if (this.items[i].y > this.BOARD_BOTTOM){
+			this.items[i].y = this.items[this.topmost_item].y - (this.items[i].height + this.SPACING);
+			this.topmost_item = i;
 		}
 	}
 	

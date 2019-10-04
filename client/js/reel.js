@@ -6,7 +6,7 @@ export class Reel{
 		
 		this.asset = new PIXI.Container();
 		
-		this.velocity = 18;
+		this.velocity = 22;
 		
 		this.is_spinning = false;
 		this.is_ending = false;
@@ -20,11 +20,11 @@ export class Reel{
 		this.spin_time = 0;
 		this.MIN_SPIN_TIME = 3 * 60;
 		
-		let hit_area = new PIXI.Graphics()
+		/*let hit_area = new PIXI.Graphics()
 			.beginFill(0x006600)
 			.drawRect(0, this.COLLISION_TOP, 100, (this.COLLISION_BOTTOM - this.COLLISION_TOP) )
 			.endFill();
-		this.asset.addChild(hit_area);
+		this.asset.addChild(hit_area);*/
 		
 		this.stopping_point = null;
 		
@@ -57,10 +57,10 @@ export class Reel{
 			this.items.push(item);
 			this.asset.addChild(item);
 			
-			item.addChild( new PIXI.Text(item.id, {fontFamily: 'Arial', fontSize: 12, fill: 0xffffff}) );
+			/*item.addChild( new PIXI.Text(item.id, {fontFamily: 'Arial', fontSize: 12, fill: 0xffffff}) );
 			let name = new PIXI.Text(this.data[i], {fontFamily: 'Arial', fontSize: 12, fill: 0xffffff});
 			item.addChild( name );
-			name.x = 12;
+			name.x = 12;*/
 		}
 		
 		this.topmost_item = 0;
@@ -69,6 +69,14 @@ export class Reel{
 		}
 		
 		
+	}
+	
+	getAssetByPosition(pos_in_reel){
+		let real_pos = this.topmost_item + pos_in_reel;
+		if (real_pos > this.items.length){
+			real_pos -= this.items.length;
+		}
+		return this.items[real_pos];
 	}
 	
 	setup_tween() {
@@ -113,7 +121,6 @@ export class Reel{
 	
 	ending(delta)
 	{
-		console.log( );
 		if ( this.items[this.stopping_point].y < this.COLLISION_TOP ){
 			for (let i=0; i < this.items.length; i++){
 				

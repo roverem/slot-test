@@ -12,7 +12,8 @@ export class Game{
 		this.assets = {};
 		this.state = {
 			playing: "waiting",
-			server_data_ready : false
+			server_data_ready : false,
+			last_spin_data: null
 		}
 		
 		this.server_data = {};
@@ -41,18 +42,28 @@ export class Game{
 		
 		//BOARD
 		this.assets.board = new PIXI.Container();
-		let board_rect = new PIXI.Graphics().
-			beginFill(0xFF0000)
-			.drawRect(0, 250, 600, 360)
+		let board_rect_frame = new PIXI.Graphics()
+			.lineStyle(8,0x66CCFF, 1)
+			.beginFill(0xFF0000, 0)
+			.drawRect(0, 240, 580, 355)
+			.endFill();
+		board_rect_frame.name = "board_frame";
+			
+		let board_rect = new PIXI.Graphics()
+			.beginFill(0xFF0000)
+			.drawRect(0, 240, 580, 355)
 			.endFill();
 		board_rect.name = "board_rect";
+		
+		
 		this.assets.board.addChild(board_rect);
+		this.assets.board.addChild(board_rect_frame);
 		this.assets.board.x = 200;
 		this.assets.board.y = 100;
 		
 		let mask = new PIXI.Graphics()
 			.beginFill(0xFF0000)
-			.drawRect(this.assets.board.x, board_rect.height, board_rect.width, board_rect.height)
+			.drawRect(this.assets.board.x, 340, board_rect.width, board_rect.height)
 			.endFill();
 		this.addToStage(mask);
 		this.assets.board.mask = mask;
@@ -143,6 +154,8 @@ export class Game{
 			this.assets.board.addChild(reel.asset);
 		}
 		
+		this.assets.board.addChild( this.assets.board.getChildByName("board_frame") );
+		
 		this.app.ticker.add(delta => this.update(delta));
 	}
 	
@@ -165,13 +178,40 @@ export class Game{
 	}
 	
 	spin(data){
-		console.log(data);
+		this.state.last_spin_data = data;
 		for ( let i = 0; i < this.assets.reels.length; i++ ){
 			this.assets.reels[i].is_spinning = true;
 			this.assets.reels[i].set_stop(data.stopPoints[i]);
 		}
 		
 		this.state.playing = "playing";
+	}
+	
+	deliver_pay(){
+		console.log(this.state.last_spin_data);
+		
+		let prizes = this.state.last_spin_data.prizes;
+		if (prizes){
+			for (let i=0; i < prizes.length; i++){
+				let prize = prizes[i];
+				console.log(prize);
+				let payline = this.server_data.paylines[prize.lineId];
+				
+				for ( let p=0; p < payline.length; p++){
+					let pos_in_reel =  Math.ceil( (payline[p]+1) / this.assets.reels.length) - 1;
+					console.log(pos_in_reel);
+					console.log( this.assets.reels[p].getAssetByPosition(pos_in_reel).y );
+					
+					let item = this.assets.reels[p].getAssetByPosition(pos_in_reel);
+					
+					let global_point = new PIXI.Point();
+					console.log( item.toGlobal(this.app.view.position, global_point) );
+				}
+			}
+		}
+		
+		//this.server_data.paylines
+		//this.server_data.paytable
 	}
 	
 	reset_game_state(){
@@ -191,6 +231,7 @@ export class Game{
 		}
 		
 		if (all_stopped){
+			this.deliver_pay();
 			this.reset_game_state();
 		}
 	}

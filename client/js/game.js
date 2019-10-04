@@ -11,15 +11,11 @@ export class Game{
 		
 		this.assets = {};
 		this.state = {
-			handler_playing: false,
-			slot_playing: false,
-		  //slot_config: null,
-			
+			playing: "waiting",
 			server_data_ready : false
 		}
 		
 		this.server_data = {};
-		
 	}
 	
 	setup(){
@@ -76,10 +72,10 @@ export class Game{
 		spin_button.buttonMode = true;
 		spin_button.addListener('pointerdown', ()=>{
 			console.log("SPIN!");
-			/*if (!this.state.slot_playing){
-				SOCKET.emit("user_plays");
-			}*/
-			SOCKET.emit("request_spin");
+			if (this.state.playing == "waiting"){
+				SOCKET.emit("request_spin");
+			}
+			
 		});
 		
 		let spin_button_frame = new PIXI.Graphics()
@@ -162,6 +158,10 @@ export class Game{
 		for (let r=0; r < this.assets.reels.length; r++){
 			this.assets.reels[r].update(delta);
 		}
+		
+		if (this.state.playing == "playing"){
+			this.check_all_columns_stopped();
+		}
 	}
 	
 	spin(data){
@@ -170,18 +170,22 @@ export class Game{
 			this.assets.reels[i].is_spinning = true;
 			this.assets.reels[i].set_stop(data.stopPoints[i]);
 		}
+		
+		this.state.playing = "playing";
 	}
 	
 	reset_game_state(){
-		this.state.handler_playing = false;
-		this.state.slot_playing = false;
+		console.log("resetting");
+		if (this.state.playing == "playing"){
+			this.state.playing = "waiting";
+		}
 	}
 	
 	check_all_columns_stopped(){
 		let all_stopped = true;
-		for (let i= 0; i < this.assets.columns.length;i++){
-			let column = this.assets.columns[i];
-			if (column.is_spinning){
+		for (let i= 0; i < this.assets.reels.length;i++){
+			let reel = this.assets.reels[i];
+			if (reel.is_spinning){
 				all_stopped = false;
 			}
 		}

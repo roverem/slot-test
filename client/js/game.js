@@ -76,8 +76,9 @@ export class Game{
 		
 		//SPIN BUTTON
 		let spin_button = new PIXI.Container();
-		spin_button.x = 600;
-		spin_button.y = 200;
+		spin_button.x = 650;
+		spin_button.y = 250;
+		
 		
 		spin_button.interactive = true;
 		spin_button.buttonMode = true;
@@ -98,7 +99,35 @@ export class Game{
 		spin_button_text.y = spin_button_frame.height / 2 - spin_button_text.height / 2;
 		spin_button.addChild(spin_button_frame);
 		spin_button.addChild(spin_button_text);
+		
+		spin_button.pivot.x = spin_button.width / 2;
+		spin_button.pivot.y = spin_button.height / 2;
+		
+		this.assets.spin_button = spin_button;
+		
+		
 		this.addToStage(spin_button);
+		
+		//PRIZE WIN DISPLAY
+		
+		let prize_display = new PIXI.Container();
+		prize_display.x = 200;
+		prize_display.y = 200;
+		let prize_frame = new PIXI.Graphics()
+			.beginFill(0xFF0000)
+			.drawRect(0, 0, 200, 100)
+			.endFill();
+			
+		prize_display.addChild(prize_frame);
+		
+		let prize_text = new PIXI.Text("$0", {fontFamily: 'Arial', fontSize: 34, fill: 0xffffff, align: 'center'})
+		prize_text.x = prize_frame.width / 2 - prize_text.width / 2;
+		prize_text.y = prize_frame.height / 2 - prize_text.height / 2;
+		prize_display.addChild(prize_text);
+		
+		this.assets.prize_text = prize_text;
+		
+		this.addToStage(prize_display);
 		
 		this.state.assets_ready = true;
 		this.setup_game();
@@ -178,6 +207,29 @@ export class Game{
 	}
 	
 	spin(data){
+		
+		this.assets.prize_text.text = "$0";
+		
+		for (let p = 0; p < this.assets.reels.length; p++)
+		{
+			let line = this.app.stage.getChildByName("payline_" + p.toString() );
+			if (line){
+				this.app.stage.removeChild(line);
+			}
+		}
+		
+		
+		let tween_expand = new TWEEN.Tween(this.assets.spin_button.scale)
+			.to({x:1.2, y:1.1}, 200)
+			.easing(TWEEN.Easing.Quadratic.InOut);
+		
+		let tween_contract = new TWEEN.Tween(this.assets.spin_button.scale)
+			.to({x:1, y:1}, 200)
+			.easing(TWEEN.Easing.Quadratic.InOut);
+			
+		tween_expand.chain(tween_contract);
+		tween_expand.start();
+		
 		this.state.last_spin_data = data;
 		for ( let i = 0; i < this.assets.reels.length; i++ ){
 			this.assets.reels[i].is_spinning = true;
@@ -191,27 +243,36 @@ export class Game{
 		console.log(this.state.last_spin_data);
 		
 		let prizes = this.state.last_spin_data.prizes;
+		let stop_points = this.state.last_spin_data.stopPoints;
+		
 		if (prizes){
+			
+			this.assets.prize_text.text = "$" + this.state.last_spin_data.winnings;
+			
 			for (let i=0; i < prizes.length; i++){
 				let prize = prizes[i];
 				console.log(prize);
+				
 				let payline = this.server_data.paylines[prize.lineId];
+				let line = new PIXI.Graphics()
+					.lineStyle(8,0x000000, 1);
+				line.name = "payline_" + i.toString();
+				this.addToStage(line);
 				
 				for ( let p=0; p < payline.length; p++){
 					let pos_in_reel =  Math.ceil( (payline[p]+1) / this.assets.reels.length) - 1;
-					console.log(pos_in_reel);
-					console.log( this.assets.reels[p].getAssetByPosition(pos_in_reel).y );
 					
-					let item = this.assets.reels[p].getAssetByPosition(pos_in_reel);
-					
-					let global_point = new PIXI.Point();
-					console.log( item.toGlobal(this.app.view.position, global_point) );
+					let item = this.assets.reels[p].getPaylinePosition(pos_in_reel, stop_points[p]);
+
+					if (line.first_draw == null){
+						line.first_draw = true;
+						line.moveTo(item.x,item.y);
+					}else{
+						line.lineTo(item.x, item.y);
+					}
 				}
 			}
 		}
-		
-		//this.server_data.paylines
-		//this.server_data.paytable
 	}
 	
 	reset_game_state(){

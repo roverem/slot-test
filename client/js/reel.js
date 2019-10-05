@@ -71,12 +71,16 @@ export class Reel{
 		
 	}
 	
-	getAssetByPosition(pos_in_reel){
-		let real_pos = this.topmost_item + pos_in_reel;
-		if (real_pos > this.items.length){
+	getPaylinePosition(pos_in_reel, stop_point){
+		console.log(stop_point, pos_in_reel);
+		let real_pos = stop_point + pos_in_reel;
+		if (real_pos >= this.items.length){
 			real_pos -= this.items.length;
 		}
-		return this.items[real_pos];
+		console.log(real_pos);
+		let x_pos = this.asset.parent.x + this.asset.x + this.items[real_pos].width / 2;
+		let y_pos = this.asset.parent.y + this.asset.y + this.items[real_pos].y + this.items[real_pos].height / 2;
+		return new PIXI.Point(x_pos, y_pos);
 	}
 	
 	setup_tween() {

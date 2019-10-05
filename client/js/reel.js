@@ -6,7 +6,8 @@ export class Reel{
 		
 		this.asset = new PIXI.Container();
 		
-		this.velocity = 22;
+		this.velocity = 50;
+		this.min_velocity = 18;
 		
 		this.is_spinning = false;
 		this.is_ending = false;
@@ -118,8 +119,18 @@ export class Reel{
 				return;
 			}
 			
-			this.items[i].y += this.velocity * delta;
+			//this.items[i].y += this.velocity * delta;
+			this.items[i].y += this.get_current_velocity() * delta;
 			this.check_and_reposition(i)
+		}
+	}
+	
+	get_current_velocity(){
+		let rate = 1 - this.spin_time / this.MIN_SPIN_TIME;
+		if ( this.velocity * rate >= this.min_velocity){
+			return this.velocity * rate;
+		}else{
+			return this.min_velocity;
 		}
 	}
 	

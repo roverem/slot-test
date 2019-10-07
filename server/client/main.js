@@ -27,6 +27,7 @@ app.renderer.resize(window.innerWidth, window.innerHeight);
 
 
 const game = new Game(app);
+
 window.onload = function() {
 	
 	game.setup();

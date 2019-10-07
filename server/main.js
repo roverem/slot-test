@@ -42,7 +42,7 @@ const PAYTABLE = [
 	{ symbol: "e", prize:30}
 ];
 
-APP.use('/', express.static("../client/"));
+APP.use('/', express.static("client/"));
 
 IO.on('connection', function(socket){
 	console.log("user connected");
